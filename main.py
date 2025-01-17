@@ -46,7 +46,7 @@ def register_user(username, password):
         return False
 
 def authenticate_user(username, password):
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect("data/users.db")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
     user = cursor.fetchone()
