@@ -16,15 +16,15 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 # Загрузка изображений
-background = pygame.image.load("img/menu_background.png")
-login_button_image = pygame.image.load("img/login_button.png")
-register_button_image = pygame.image.load("img/register_button.png")
-confirm_button_image = pygame.image.load("img/confirm_button.png")
-back_button_image = pygame.image.load("img/back_button.png")
+background = pygame.image.load("img/background/menu_background.png")
+login_button_image = pygame.image.load("img/button/login_button.png")
+register_button_image = pygame.image.load("img/button/register_button.png")
+confirm_button_image = pygame.image.load("img/button/confirm_button.png")
+back_button_image = pygame.image.load("img/button/back_button.png")
 
 # Настройка базы данных
 def init_db():
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect("data/users.db")
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,7 +36,7 @@ def init_db():
 
 def register_user(username, password):
     try:
-        conn = sqlite3.connect("users.db")
+        conn = sqlite3.connect("data/users.db")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
         conn.commit()
