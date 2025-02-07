@@ -217,10 +217,15 @@ def show_game_over_screen(screen, WIDTH, HEIGHT):
                 if button_rect.collidepoint(event.pos):  # Проверка клика на кнопке
                     return  # Выход из функции после нажатия "ОК"
 
+
 def start_game(screen, WIDTH, HEIGHT):
     """Основной игровой цикл с врагами, аптечками и взаимодействием с картой."""
-    import pygame
-    import random
+
+    # Инициализация переменной map_item
+    map_item = {
+        "x": -1000,  # Начальные координаты за пределами экрана
+        "y": -1000,
+    }
 
     # Загрузка карты
     map_image = pygame.image.load("img/map_1/map.png")
@@ -260,6 +265,14 @@ def start_game(screen, WIDTH, HEIGHT):
     enemy_image = pygame.transform.scale(enemy_image, (WIDTH // 12, HEIGHT // 12))
     health_image = pygame.transform.scale(health_image, (WIDTH // 15, HEIGHT // 15))
 
+    # Загрузка изображения безобидного персонажа
+    helpless_image = pygame.image.load("img/npc_cat.png")
+    helpless_image = pygame.transform.scale(helpless_image, (WIDTH // 12, HEIGHT // 12))
+
+    # Загрузка изображения карты
+    map_item_image = pygame.image.load("img/map_item.png")
+    map_item_image = pygame.transform.scale(map_item_image, (WIDTH // 15, HEIGHT // 15))
+
     # Распределение объектов на карте
     num_elements = 15
     map_elements = []
@@ -273,13 +286,21 @@ def start_game(screen, WIDTH, HEIGHT):
                 "image": props["image"]
             })
 
-    # Создание врагов
+    # Создание безобидного персонажа
+    helpless = {
+        "x": random.randint(0, scaled_map.get_width() - helpless_image.get_width()),
+        "y": random.randint(0, scaled_map.get_height() - helpless_image.get_height()),
+    }
+
+    # Создание врагов вокруг безобидного персонажа
     num_enemies = 5
     enemies = []
     for _ in range(num_enemies):
+        enemy_x = helpless["x"] + random.randint(-100, 100)
+        enemy_y = helpless["y"] + random.randint(-100, 100)
         enemies.append({
-            "x": random.randint(0, scaled_map.get_width() - enemy_image.get_width()),
-            "y": random.randint(0, scaled_map.get_height() - enemy_image.get_height()),
+            "x": enemy_x,
+            "y": enemy_y,
             "hp": 50,
             "damage": 10
         })
@@ -312,6 +333,12 @@ def start_game(screen, WIDTH, HEIGHT):
     # Таймеры для предотвращения повторного урона от элементов карты
     element_damage_cooldown = 500  # миллисекунды
     last_element_damage_time = 0
+
+    # Флаг для проверки, все ли враги уничтожены
+    all_enemies_defeated = False
+
+    # Флаг для проверки, подобрана ли карта
+    map_picked_up = False
 
     running = True
     while running:
@@ -367,8 +394,8 @@ def start_game(screen, WIDTH, HEIGHT):
                     dx = player_map_x - element["x"]
                     dy = player_map_y - element["y"]
                     dist = max(1, (dx ** 2 + dy ** 2) ** 0.5)
-                    player_map_x += int(dx / dist * 20)
-                    player_map_y += int(dy / dist * 20)
+                    player_map_x += int(dx / dist * 50)
+                    player_map_y += int(dy / dist * 50)
 
         # Урон от врагов
         for enemy in enemies[:]:
@@ -391,6 +418,33 @@ def start_game(screen, WIDTH, HEIGHT):
             show_game_over_screen(screen, WIDTH, HEIGHT)
             return
 
+        # Проверка, все ли враги уничтожены
+        if not enemies and not all_enemies_defeated:
+            all_enemies_defeated = True
+
+        # Взаимодействие с безобидным персонажем
+        if all_enemies_defeated:
+            helpless_rect = pygame.Rect(helpless["x"], helpless["y"], helpless_image.get_width(), helpless_image.get_height())
+            player_rect = pygame.Rect(player_map_x, player_map_y, player_width, player_height)
+            if player_rect.colliderect(helpless_rect):
+                # Разговор с персонажем и спавн карты
+                map_item = {
+                    "x": helpless["x"],
+                    "y": helpless["y"],
+                }
+                map_picked_up = False
+
+        # Подбор карты
+        if all_enemies_defeated and not map_picked_up:
+            map_item_rect = pygame.Rect(map_item["x"], map_item["y"], map_item_image.get_width(), map_item_image.get_height())
+            player_rect = pygame.Rect(player_map_x, player_map_y, player_width, player_height)
+            if player_rect.colliderect(map_item_rect):
+                map_picked_up = True
+                running = False  # Останавливаем текущий игровой цикл
+                start_game2(screen, WIDTH, HEIGHT)
+                return
+
+
         # Отрисовка объектов
         screen.blit(scaled_map, (-camera_x, -camera_y))
         for element in map_elements:
@@ -412,6 +466,15 @@ def start_game(screen, WIDTH, HEIGHT):
             health_screen_y = health["y"] - camera_y
             screen.blit(health_image, (health_screen_x, health_screen_y))
 
+        if all_enemies_defeated and not map_picked_up:
+            helpless_screen_x = helpless["x"] - camera_x
+            helpless_screen_y = helpless["y"] - camera_y
+            screen.blit(helpless_image, (helpless_screen_x, helpless_screen_y))
+
+            map_item_screen_x = map_item["x"] - camera_x
+            map_item_screen_y = map_item["y"] - camera_y
+            screen.blit(map_item_image, (map_item_screen_x, map_item_screen_y))
+
         screen.blit(current_player_image, (player_screen_x, player_screen_y))
         player_hp_bar_width = player_width
         player_hp_bar_height = 5
@@ -420,5 +483,154 @@ def start_game(screen, WIDTH, HEIGHT):
                          (player_screen_x, player_screen_y - player_hp_bar_height - 5, player_hp_bar_width, player_hp_bar_height))
         pygame.draw.rect(screen, (0, 255, 0),
                          (player_screen_x, player_screen_y - player_hp_bar_height - 5, player_hp_bar_width * player_health_ratio, player_hp_bar_height))
+
+        pygame.display.flip()
+
+def start_game2(screen, WIDTH, HEIGHT):
+    map_image = pygame.image.load("img/map_2/map.png")
+    map_scale = 4
+    scaled_map = pygame.transform.scale(
+        map_image,
+        (map_image.get_width() * map_scale, map_image.get_height() * map_scale)
+    )
+
+    # Загрузка изображений для ентити
+    elements = {
+        "волшебный пруд": {"image": pygame.image.load("img/map_2/pond.png"), "damage":5},
+        "грибы": {"image": pygame.image.load("img/map_2/mushrooms.png"), "damage":5},
+        "елка": {"image": pygame.image.load("img/map_2/tree.png"), "damage":5},
+        "камни желтые": {"image": pygame.image.load("img/map_2/yellow_stones.png"), "damage":5},
+        "камни красные": {"image": pygame.image.load("img/map_2/red_stones.png"), "damage":5},
+        "камни оранжевые": {"image": pygame.image.load("img/map_2/orange_stones.png"), "damage":5},
+        "пещера": {"image": pygame.image.load("img/map_2/cave.png"), "damage":5},
+        "твара высокая": {"image": pygame.image.load("img/map_2/tall_creature.png"), "damage":5},
+        "трава жёлтая": {"image": pygame.image.load("img/map_2/yellow_grass.png"), "damage":5},
+        "трава равнины": {"image": pygame.image.load("img/map_2/plain_grass.png"), "damage":5},
+    }
+
+    enemy_image = pygame.image.load("img/kris.png")
+    health_image = pygame.image.load("img/heal.png")
+
+    enemy_image = pygame.transform.scale(enemy_image, (WIDTH // 12, HEIGHT // 12))
+    health_image = pygame.transform.scale(health_image, (WIDTH // 15, HEIGHT // 15))
+
+    # Масштабирование изображений ентити
+    for element in elements.values():
+        element["image"] = pygame.transform.scale(element["image"], (WIDTH // 15, HEIGHT // 15))
+        element["size"] = element["image"].get_size()
+
+    # Распределение объектов на карте
+    num_elements = 15
+    map_elements = []
+    for name, props in elements.items():
+        for _ in range(num_elements):
+            map_elements.append({
+                "name": name,
+                "x": random.randint(0, scaled_map.get_width() - props["size"][0]),
+                "y": random.randint(0, scaled_map.get_height() - props["size"][1]),
+                "damage": props["damage"],
+                "image": props["image"]
+            })
+
+
+    # Загрузка изображений персонажа
+    player_images = {
+        "down": pygame.image.load("img/kat/kat_up.png"),
+        "up": pygame.image.load("img/kat/kat_down.png"),
+        "left": pygame.image.load("img/kat/kat_left.png"),
+        "right": pygame.image.load("img/kat/kat_right.png"),
+    }
+
+    # хилки
+    num_health_packs = 5
+    health_packs = []
+    for _ in range(num_health_packs):
+        health_packs.append({
+            "x": random.randint(0, scaled_map.get_width() - health_image.get_width()),
+            "y": random.randint(0, scaled_map.get_height() - health_image.get_height()),
+            "heal": 20
+        })
+
+    # Масштабирование персонажа
+    player_width = WIDTH // 10
+    player_height = HEIGHT // 10
+    scaled_player_images = {direction: pygame.transform.scale(image, (player_width, player_height))
+                            for direction, image in player_images.items()}
+
+    current_player_image = scaled_player_images["down"]
+    player_map_x = scaled_map.get_width() // 2
+    player_map_y = scaled_map.get_height() // 2
+    camera_x = player_map_x - WIDTH // 2
+    camera_y = player_map_y - HEIGHT // 2
+    player_speed = 10
+    # Таймеры для предотвращения повторного урона от элементов карты
+    element_damage_cooldown = 500  # миллисекунды
+    last_element_damage_time = 0
+    player_hp = 100
+    player_max_hp = 100
+
+    # Основной игровой цикл
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.VIDEORESIZE:
+                WIDTH, HEIGHT = event.w, event.h
+                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            player_map_y -= player_speed
+            current_player_image = scaled_player_images["up"]
+        if keys[pygame.K_s]:
+            player_map_y += player_speed
+            current_player_image = scaled_player_images["down"]
+        if keys[pygame.K_a]:
+            player_map_x -= player_speed
+            current_player_image = scaled_player_images["left"]
+        if keys[pygame.K_d]:
+            player_map_x += player_speed
+            current_player_image = scaled_player_images["right"]
+
+        player_map_x = max(0, min(player_map_x, scaled_map.get_width() - 1))
+        player_map_y = max(0, min(player_map_y, scaled_map.get_height() - 1))
+        camera_x = max(0, min(player_map_x - WIDTH // 2, scaled_map.get_width() - WIDTH))
+        camera_y = max(0, min(player_map_y - HEIGHT // 2, scaled_map.get_height() - HEIGHT))
+        player_screen_x = max(0, min(player_map_x - camera_x, WIDTH - player_width))
+        player_screen_y = max(0, min(player_map_y - camera_y, HEIGHT - player_height))
+
+        current_time = pygame.time.get_ticks()
+        # Проверка столкновений с ентити
+        for element in map_elements[:]:
+            element_rect = pygame.Rect(element["x"], element["y"], element["image"].get_width(),
+                                        element["image"].get_height())
+            player_rect = pygame.Rect(player_map_x, player_map_y, player_width, player_height)
+            if player_rect.colliderect(element_rect):
+                if current_time - last_element_damage_time > element_damage_cooldown:
+                    player_hp -= element["damage"]
+                    last_element_damage_time = current_time
+                    dx = player_map_x - element["x"]
+                    dy = player_map_y - element["y"]
+                    dist = max(1, (dx ** 2 + dy ** 2) ** 0.5)
+                    player_map_x += int(dx / dist * 50)
+                    player_map_y += int(dy / dist * 50)
+
+        screen.blit(scaled_map, (-camera_x, -camera_y))
+        for element in map_elements:
+            element_screen_x = element["x"] - camera_x
+            element_screen_y = element["y"] - camera_y
+            if 0 <= element_screen_x <= WIDTH and 0 <= element_screen_y <= HEIGHT:
+                screen.blit(element["image"], (element_screen_x, element_screen_y))
+
+        screen.blit(current_player_image, (player_screen_x, player_screen_y))
+        player_hp_bar_width = player_width
+        player_hp_bar_height = 5
+        player_health_ratio = player_hp / player_max_hp
+        pygame.draw.rect(screen, (255, 0, 0),
+                         (player_screen_x, player_screen_y - player_hp_bar_height - 5, player_hp_bar_width, player_hp_bar_height))
+        pygame.draw.rect(screen, (0, 255, 0),
+                         (player_screen_x, player_screen_y - player_hp_bar_height - 5, player_hp_bar_width * player_health_ratio, player_hp_bar_height))
+
 
         pygame.display.flip()
