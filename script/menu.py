@@ -888,16 +888,12 @@ def start_game3(screen, WIDTH, HEIGHT, on_shield, on_maich):
 
     # Загрузка изображений для ентити
     elements = {
-        "волшебный пруд": {"image": pygame.image.load("img/map_2/pond.png"), "damage":0},
-        "грибы": {"image": pygame.image.load("img/map_2/mushrooms.png"), "damage":5},
-        "елка": {"image": pygame.image.load("img/map_2/tree.png"), "damage":5},
-        "камни желтые": {"image": pygame.image.load("img/map_2/yellow_stones.png"), "damage":5},
-        "камни красные": {"image": pygame.image.load("img/map_2/red_stones.png"), "damage":5},
-        "камни оранжевые": {"image": pygame.image.load("img/map_2/orange_stones.png"), "damage":5},
-        "пещера": {"image": pygame.image.load("img/map_2/cave.png"), "damage":5},
-        "твара высокая": {"image": pygame.image.load("img/map_2/tall_creature.png"), "damage":5},
-        "трава жёлтая": {"image": pygame.image.load("img/map_2/yellow_grass.png"), "damage":5},
-        "трава равнины": {"image": pygame.image.load("img/map_2/plain_grass.png"), "damage":5},
+        "куст": {"image": pygame.image.load("img/map_3/bush.png"), "damage":0},
+        "пик1": {"image": pygame.image.load("img/map_3/spike_1.png"), "damage":5},
+        "пик2": {"image": pygame.image.load("img/map_3/spike_2.png"), "damage":5},
+        "камень1": {"image": pygame.image.load("img/map_3/stone_1.png"), "damage":5},
+        "камень2": {"image": pygame.image.load("img/map_3/stone_2.png"), "damage":5},
+        "дерево": {"image": pygame.image.load("img/map_3/tree.png"), "damage":5},
     }
 
     enemy_image = pygame.image.load("img/kris/kris_2lvl.png")
@@ -905,6 +901,7 @@ def start_game3(screen, WIDTH, HEIGHT, on_shield, on_maich):
     health_image = pygame.image.load("img/heal.png")
 
     enemy_image = pygame.transform.scale(enemy_image, (WIDTH // 12, HEIGHT // 12))
+    enemy_king_image = pygame.transform.scale(enemy_king_image, (WIDTH // 12, HEIGHT // 12))
     health_image = pygame.transform.scale(health_image, (WIDTH // 15, HEIGHT // 15))
 
     # Масштабирование изображений ентити
