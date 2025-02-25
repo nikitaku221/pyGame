@@ -270,12 +270,12 @@ def start_game(screen, WIDTH, HEIGHT):
 
     # Загрузка изображений элементов
     elements = {
-        "flower": {"image": pygame.image.load("img/map_1/flower.png"), "damage": 5},
-        "grass": {"image": pygame.image.load("img/map_1/grass.png"), "damage": 3},
-        "stump": {"image": pygame.image.load("img/map_1/stump.png"), "damage": 10},
-        "bush": {"image": pygame.image.load("img/map_1/bush.png"), "damage": 7},
-        "tree": {"image": pygame.image.load("img/map_1/tree.png"), "damage": 12},
-        "mud": {"image": pygame.image.load("img/map_1/mud.png"), "damage": 4},
+        "flower": {"image": pygame.image.load("img/map_1/flower.png"), "damage": 0},
+        "grass": {"image": pygame.image.load("img/map_1/grass.png"), "damage": 0},
+        "stump": {"image": pygame.image.load("img/map_1/stump.png"), "damage": 5},
+        "bush": {"image": pygame.image.load("img/map_1/bush.png"), "damage": 3},
+        "tree": {"image": pygame.image.load("img/map_1/tree.png"), "damage": 10},
+        "mud": {"image": pygame.image.load("img/map_1/mud.png"), "damage": 7},
     }
 
     # Масштабирование объектов
@@ -366,7 +366,7 @@ def start_game(screen, WIDTH, HEIGHT):
     player_map_y = scaled_map.get_height() // 2
     camera_x = player_map_x - WIDTH // 2
     camera_y = player_map_y - HEIGHT // 2
-    player_speed = 10
+    player_speed = 1
     player_hp = 100
     player_max_hp = 100
 
@@ -581,16 +581,16 @@ def start_game2(screen, WIDTH, HEIGHT, on_shield, on_maich):
 
     # Загрузка изображений для ентити
     elements = {
-        "волшебный пруд": {"image": pygame.image.load("img/map_2/pond.png"), "damage": 5},
-        "грибы": {"image": pygame.image.load("img/map_2/mushrooms.png"), "damage": 5},
-        "елка": {"image": pygame.image.load("img/map_2/tree.png"), "damage": 5},
-        "камни желтые": {"image": pygame.image.load("img/map_2/yellow_stones.png"), "damage": 5},
-        "камни красные": {"image": pygame.image.load("img/map_2/red_stones.png"), "damage": 5},
-        "камни оранжевые": {"image": pygame.image.load("img/map_2/orange_stones.png"), "damage": 5},
-        "пещера": {"image": pygame.image.load("img/map_2/cave.png"), "damage": 5},
-        "твара высокая": {"image": pygame.image.load("img/map_2/tall_creature.png"), "damage": 5},
-        "трава жёлтая": {"image": pygame.image.load("img/map_2/yellow_grass.png"), "damage": 5},
-        "трава равнины": {"image": pygame.image.load("img/map_2/plain_grass.png"), "damage": 5},
+        "волшебный пруд": {"image": pygame.image.load("img/map_2/pond.png"), "damage": 0},
+        "грибы": {"image": pygame.image.load("img/map_2/mushrooms.png"), "damage": 0},
+        "елка": {"image": pygame.image.load("img/map_2/tree.png"), "damage": 10},
+        "камни желтые": {"image": pygame.image.load("img/map_2/yellow_stones.png"), "damage": 1},
+        "камни красные": {"image": pygame.image.load("img/map_2/red_stones.png"), "damage": 4},
+        "камни оранжевые": {"image": pygame.image.load("img/map_2/orange_stones.png"), "damage": 3},
+        "пещера": {"image": pygame.image.load("img/map_2/cave.png"), "damage": 0},
+        "твара высокая": {"image": pygame.image.load("img/map_2/tall_creature.png"), "damage": 1},
+        "трава жёлтая": {"image": pygame.image.load("img/map_2/yellow_grass.png"), "damage": 2},
+        "трава равнины": {"image": pygame.image.load("img/map_2/plain_grass.png"), "damage": 3},
     }
 
     aganim_elementss = {
@@ -888,7 +888,7 @@ def start_game3(screen, WIDTH, HEIGHT, on_shield, on_maich):
 
     # Загрузка изображений для ентити
     elements = {
-        "волшебный пруд": {"image": pygame.image.load("img/map_2/pond.png"), "damage":5},
+        "волшебный пруд": {"image": pygame.image.load("img/map_2/pond.png"), "damage":0},
         "грибы": {"image": pygame.image.load("img/map_2/mushrooms.png"), "damage":5},
         "елка": {"image": pygame.image.load("img/map_2/tree.png"), "damage":5},
         "камни желтые": {"image": pygame.image.load("img/map_2/yellow_stones.png"), "damage":5},
